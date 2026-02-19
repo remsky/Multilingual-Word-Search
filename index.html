@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>English-Bengali Word Search | Premium Educational Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+Bengali:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-bg': '#F8FAFC',
+                        'accent-soft': '#E0F2FE',
+                        'accent-main': '#0284C7',
+                        'success-pale': '#F0FDF4',
+                        'success-deep': '#16A34A',
+                        'bengali-orange': '#EA580C',
+                        'bengali-blue': '#2563EB',
+                        'glass': 'rgba(255, 255, 255, 0.8)',
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        bengali: ['Noto Sans Bengali', 'serif'],
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+                        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --cell-bg: #FFFFFF;
+            --cell-hover: #F1F5F9;
+            --cell-selected: #FDE047;
+            --cell-found: #86EFAC;
+            --grid-size: 12;
+        }
+
+        body {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(var(--grid-size), 1fr);
+            grid-template-rows: repeat(var(--grid-size), 1fr);
+            gap: 4px;
+            user-select: none;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--cell-bg);
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #334155;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 640px) {
+            .grid-cell { font-size: 0.85rem; gap: 2px; }
+            .grid-container { gap: 2px; }
+        }
+
+        .grid-cell:hover:not(.selected):not(.found) {
+            background: var(--cell-hover);
+            transform: scale(1.05);
+        }
+
+        .grid-cell.selected {
+            background: var(--cell-selected) !important;
+            color: #854d0e;
+            transform: scale(0.95);
+        }
+
+        .grid-cell.found {
+            background: var(--cell-found) !important;
+            color: #166534;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .word-item {
+            transition: all 0.3s ease;
+        }
+
+        .word-item.found {
+            text-decoration: line-through;
+            opacity: 0.5;
+            background: #F1F5F9 !important;
+            color: #94A3B8 !important;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-overlay {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Scrollbar styling */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-primary-bg min-h-screen font-sans text-slate-800 antialiased overflow-x-hidden">
+
+    <div class="max-w-6xl mx-auto px-4 py-8 md:py-12">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-2">
+                Lexi<span class="text-accent-main">Find</span>
+            </h1>
+            <p class="text-slate-500 font-medium tracking-wide uppercase text-xs">English-Bengali Word Search</p>
+        </header>
+
+        <div class="flex flex-col lg:flex-row gap-8 items-start">
+            <!-- Game Grid Section -->
+            <div id="grid-section" class="w-full lg:flex-1 glass-morphism rounded-3xl p-4 md:p-8 shadow-premium">
+                <div id="grid-container" class="grid-container mx-auto max-w-[500px]">
+                    <!-- JS will populate cells here -->
+                </div>
+            </div>
+
+            <!-- Sidebar Section -->
+            <div class="w-full lg:w-80 flex flex-col gap-6">
+                <!-- Word List Card -->
+                <div id="word-list-section" class="glass-morphism rounded-3xl p-6 shadow-premium h-fit">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-bold text-lg text-slate-800">Words to Find</h2>
+                        <span id="found-counter" class="bg-accent-soft text-accent-main text-sm font-bold px-3 py-1 rounded-full">0/20</span>
+                    </div>
+                    <ul id="word-list" class="flex flex-wrap lg:flex-col gap-2 max-h-[300px] lg:max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                        <!-- JS will populate word list here -->
+                    </ul>
+                </div>
+
+                <!-- Instructions/Feedback Hint -->
+                <div class="bg-slate-900 rounded-2xl p-6 text-white shadow-xl">
+                    <h3 class="font-bold mb-2 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-accent-main" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        How to Play
+                    </h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Drag across letters horizontally, vertically, or diagonally to select words. Discover new vocabulary in English and Bengali!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Word Details -->
+    <div id="modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm modal-overlay" onclick="closeModal()"></div>
+        <div class="relative w-full max-w-lg bg-white rounded-[2rem] shadow-2xl p-8 modal-content">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-success-pale rounded-2xl mb-6">
+                    <svg class="w-8 h-8 text-success-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                
+                <h2 id="modal-english-word" class="text-3xl font-bold text-slate-900 mb-1">Word</h2>
+                <h3 id="modal-bengali-word" class="text-2xl font-bengali text-bengali-orange font-bold mb-6">শব্দ</h3>
+                
+                <div class="space-y-6 text-left border-t border-slate-100 pt-6">
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Meaning (English)</p>
+                        <p id="modal-en-explanation" class="text-slate-700 leading-relaxed italic">Explanation...</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Bengali Explanation</p>
+                        <p id="modal-bn-explanation" class="font-bengali text-slate-700 leading-relaxed text-lg">ব্যাখ্যা...</p>
+                    </div>
+                </div>
+
+                <button onclick="closeModal()" class="mt-8 w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200">
+                    Keep Exploring
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WORDS_DATA = [
+            { english: "Aspiration", bengali: "আকাঙ্ক্ষা (Akangkha)", en_explanation: "A hope or ambition of achieving something.", bn_explanation: "কিছু অর্জনের আশা বা উচ্চাকাঙ্ক্ষা।" },
+            { english: "Diligence", bengali: "পরিশ্রম (Porishrom)", en_explanation: "Careful and persistent work or effort.", bn_explanation: "সাবধানী এবং অবিরাম কাজ বা প্রচেষ্টা।" },
+            { english: "Empathy", bengali: "সহমর্মিতা (Shohomormita)", en_explanation: "The ability to understand and share the feelings of another.", bn_explanation: "অন্যের অনুভূতি বোঝার এবং ভাগ করে নেওয়ার ক্ষমতা।" },
+            { english: "Innovation", bengali: "উদ্ভাবন (Udbhabon)", en_explanation: "A new method, idea, product, etc.", bn_explanation: "একটি নতুন পদ্ধতি, ধারণা, পণ্য ইত্যাদি।" },
+            { english: "Resilience", bengali: "স্থিতিস্থাপকতা (Sthitishthapokota)", en_explanation: "The capacity to recover quickly from difficulties.", bn_explanation: "অসুবিধা থেকে দ্রুত পুনরুদ্ধার করার ক্ষমতা।" },
+            { english: "Serenity", bengali: "প্রশান্তি (Proshanti)", en_explanation: "The state of being calm, peaceful, and untroubled.", bn_explanation: "শান্ত, শান্তিপূর্ণ এবং নিরবচ্ছিন্ন থাকার অবস্থা।" },
+            { english: "Strategy", bengali: "কৌশল (Koushol)", en_explanation: "A plan of action designed to achieve a long-term goal.", bn_explanation: "দীর্ঘমেয়াদী লক্ষ্য অর্জনের জন্য ডিজাইন করা কর্মপরিকল্পনা।" },
+            { english: "Collaboration", bengali: "সহযোগিতা (Shohojogita)", en_explanation: "The action of working with someone to produce something.", bn_explanation: "কিছু তৈরির জন্য কারো সাথে কাজ করার কাজ।" },
+            { english: "Destination", bengali: "গন্তব্য (Gontobbo)", en_explanation: "The place to which someone or something is going.", bn_explanation: "যে স্থানে কেউ বা কিছু যাচ্ছে।" },
+            { english: "Explore", bengali: "অন্বেষণ করা (Onneshon Kora)", en_explanation: "Travel through an unfamiliar area to learn about it.", bn_explanation: "অপরিচিত এলাকা সম্পর্কে জানতে তার মধ্য দিয়ে ভ্রমণ করা।" },
+            { english: "Gratitude", bengali: "কৃতজ্ঞতা (Kritoggyota)", en_explanation: "The quality of being thankful.", bn_explanation: "ধন্যবাদ দেওয়ার বা কৃতজ্ঞ থাকার গুণ।" },
+            { english: "Introspection", bengali: "আত্মদর্শন (Attodarshon)", en_explanation: "The examination of one's own conscious thoughts.", bn_explanation: "নিজের সচেতন চিন্তা ও অনুভূতির পরীক্ষা।" },
+            { english: "Negotiation", bengali: "আলোচনা (Alochena)", en_explanation: "Discussion aimed at reaching an agreement.", bn_explanation: "একটি চুক্তিতে পৌঁছানোর লক্ষ্যে আলোচনা।" },
+            { english: "Perspective", bengali: "দৃষ্টিভঙ্গি (Drishtibhongi)", en_explanation: "A particular attitude toward or way of regarding something.", bn_explanation: "কোন কিছুর প্রতি বিশেষ দৃষ্টিভঙ্গি বা দেখার উপায়।" },
+            { english: "Souvenir", bengali: "স্মারক (Smarok)", en_explanation: "A thing that is kept as a reminder of a person, place, or event.", bn_explanation: "ব্যক্তি, স্থান বা ঘটনার স্মারক হিসেবে রাখা বস্তু।" },
+            { english: "Endeavor", bengali: "প্রচেষ্টা (Procheshta)", en_explanation: "An attempt to achieve a goal.", bn_explanation: "একটি লক্ষ্য অর্জনের প্রচেষ্টা।" },
+            { english: "Efficiency", bengali: "দক্ষতা (Dokkhota)", en_explanation: "The ability to avoid wasting materials, energy, efforts, or time.", bn_explanation: "উপাদান, শক্তি, প্রচেষ্টা বা সময়ের অপচয় এড়ানোর ক্ষমতা।" },
+            { english: "Enlighten", bengali: "আলোকিত করা (Alokito Kora)", en_explanation: "Give someone greater knowledge and understanding.", bn_explanation: "কাউকে বৃহত্তর জ্ঞান এবং বোঝাপড়া প্রদান করা।" },
+            { english: "Flourish", bengali: "সমৃদ্ধ হওয়া (Somriddho Howa)", en_explanation: "Develop rapidly and successfully.", bn_explanation: "দ্রুত এবং সফলভাবে বিকাশ লাভ করা।" },
+            { english: "Integrity", bengali: "সততা (Sotota)", en_explanation: "The quality of being honest and having strong moral principles.", bn_explanation: "সততা এবং দৃঢ় নৈতিক নীতি থাকার গুণ।" }
+        ];
+
+        const GRID_ROWS = 12;
+        const GRID_COLS = 12;
+        let grid = Array(GRID_ROWS).fill().map(() => Array(GRID_COLS).fill(''));
+        let foundWords = new Set();
+        let isSelecting = false;
+        let startCellCoords = null;
+        let currentPath = [];
+
+        const gridContainer = document.getElementById('grid-container');
+        const wordListElement = document.getElementById('word-list');
+        const modal = document.getElementById('modal');
+        const foundCounter = document.getElementById('found-counter');
+
+        function init() {
+            generateGrid();
+            renderWordList();
+            setupEventListeners();
+        }
+
+        function generateGrid() {
+            const sortedWords = [...WORDS_DATA].map(w => w.english.toUpperCase()).sort((a, b) => b.length - a.length);
+            const directions = [
+                [0, 1], [1, 0], [1, 1], [-1, 1],
+                [0, -1], [-1, 0], [-1, -1], [1, -1]
+            ];
+
+            sortedWords.forEach(word => {
+                let placed = false;
+                let attempts = 0;
+                while (!placed && attempts < 100) {
+                    const dir = directions[Math.floor(Math.random() * directions.length)];
+                    const r = Math.floor(Math.random() * GRID_ROWS);
+                    const c = Math.floor(Math.random() * GRID_COLS);
+
+                    if (canPlace(word, r, c, dir)) {
+                        for (let i = 0; i < word.length; i++) {
+                            grid[r + i * dir[0]][c + i * dir[1]] = word[i];
+                        }
+                        placed = true;
+                    }
+                    attempts++;
+                }
+            });
+
+            // Fill empty
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    if (grid[r][c] === '') {
+                        grid[r][c] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                    }
+                }
+            }
+
+            renderGrid();
+        }
+
+        function canPlace(word, r, c, dir) {
+            const endR = r + (word.length - 1) * dir[0];
+            const endC = c + (word.length - 1) * dir[1];
+            if (endR < 0 || endR >= GRID_ROWS || endC < 0 || endC >= GRID_COLS) return false;
+
+            for (let i = 0; i < word.length; i++) {
+                const currR = r + i * dir[0];
+                const currC = c + i * dir[1];
+                if (grid[currR][currC] !== '' && grid[currR][currC] !== word[i]) return false;
+            }
+            return true;
+        }
+
+        function renderGrid() {
+            gridContainer.innerHTML = '';
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.textContent = grid[r][c];
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    gridContainer.appendChild(cell);
+                }
+            }
+        }
+
+        function renderWordList() {
+            wordListElement.innerHTML = '';
+            WORDS_DATA.forEach(word => {
+                const li = document.createElement('li');
+                li.className = 'word-item bg-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm border border-slate-100 text-slate-600';
+                li.id = `word-${word.english.toUpperCase()}`;
+                li.textContent = word.english;
+                wordListElement.appendChild(li);
+            });
+        }
+
+        function setupEventListeners() {
+            gridContainer.addEventListener('mousedown', startSelection);
+            gridContainer.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (target && target.classList.contains('grid-cell')) {
+                    startSelection({ target });
+                }
+            });
+
+            window.addEventListener('mousemove', moveSelection);
+            window.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (target && target.classList.contains('grid-cell')) {
+                    moveSelection({ target });
+                }
+            });
+
+            window.addEventListener('mouseup', endSelection);
+            window.addEventListener('touchend', endSelection);
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        }
+
+        function startSelection(e) {
+            if (!e.target.classList.contains('grid-cell')) return;
+            isSelecting = true;
+            startCellCoords = {
+                r: parseInt(e.target.dataset.row),
+                c: parseInt(e.target.dataset.col)
+            };
+            highlightSelection(startCellCoords, startCellCoords);
+        }
+
+        function moveSelection(e) {
+            if (!isSelecting || !e.target.classList.contains('grid-cell')) return;
+            const currentCoords = {
+                r: parseInt(e.target.dataset.row),
+                c: parseInt(e.target.dataset.col)
+            };
+            highlightSelection(startCellCoords, currentCoords);
+        }
+
+        function highlightSelection(start, end) {
+            const dr = end.r - start.r;
+            const dc = end.c - start.c;
+            
+            // Check if it's a straight line (horizontal, vertical, or 45-deg diagonal)
+            if (dr !== 0 && dc !== 0 && Math.abs(dr) !== Math.abs(dc)) return;
+
+            const steps = Math.max(Math.abs(dr), Math.abs(dc));
+            const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+            const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+
+            clearCurrentSelection();
+            currentPath = [];
+
+            for (let i = 0; i <= steps; i++) {
+                const r = start.r + i * stepR;
+                const c = start.c + i * stepC;
+                const cell = getCell(r, c);
+                if (cell) {
+                    cell.classList.add('selected');
+                    currentPath.push({ r, c, char: grid[r][c] });
+                }
+            }
+        }
+
+        function clearCurrentSelection() {
+            document.querySelectorAll('.grid-cell.selected').forEach(el => el.classList.remove('selected'));
+        }
+
+        function endSelection() {
+            if (!isSelecting) return;
+            isSelecting = false;
+
+            const selectedWord = currentPath.map(p => p.char).join('');
+            const reversedWord = selectedWord.split('').reverse().join('');
+            
+            const match = WORDS_DATA.find(w => 
+                (w.english.toUpperCase() === selectedWord || w.english.toUpperCase() === reversedWord) && 
+                !foundWords.has(w.english.toUpperCase())
+            );
+
+            if (match) {
+                const wordKey = match.english.toUpperCase();
+                foundWords.add(wordKey);
+                
+                // Mark cells as found
+                currentPath.forEach(p => {
+                    getCell(p.r, p.c).classList.add('found');
+                });
+
+                // Update word list
+                const listItem = document.getElementById(`word-${wordKey}`);
+                if (listItem) listItem.classList.add('found');
+
+                // Update counter
+                foundCounter.textContent = `${foundWords.size}/20`;
+
+                // Show Modal
+                showModal(match);
+            }
+
+            clearCurrentSelection();
+            currentPath = [];
+        }
+
+        function getCell(r, c) {
+            return document.querySelector(`.grid-cell[data-row="${r}"][data-col="${c}"]`);
+        }
+
+        function showModal(data) {
+            document.getElementById('modal-english-word').textContent = data.english;
+            document.getElementById('modal-bengali-word').textContent = data.bengali;
+            document.getElementById('modal-en-explanation').textContent = data.en_explanation;
+            document.getElementById('modal-bn-explanation').textContent = data.bn_explanation;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
