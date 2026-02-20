@@ -40,7 +40,7 @@
             --cell-hover: #F1F5F9;
             --cell-selected: #FDE047;
             --cell-found: #86EFAC;
-            --grid-size: 17;
+            --grid-size: 12;
         }
 
         body {
@@ -64,7 +64,7 @@
             background: var(--cell-bg);
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 1.1rem;
             color: #334155;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
@@ -72,7 +72,7 @@
         }
 
         @media (max-width: 640px) {
-            .grid-cell { font-size: 0.65rem; gap: 2px; }
+            .grid-cell { font-size: 0.85rem; gap: 2px; }
             .grid-container { gap: 2px; }
         }
 
@@ -252,9 +252,10 @@
             { english: "Integrity", bengali: "সততা (Sotota)", en_explanation: "The quality of being honest and having strong moral principles.", bn_explanation: "সততা এবং দৃঢ় নৈতিক নীতি থাকার গুণ।" }
         ];
 
-        const GRID_ROWS = 17;
-        const GRID_COLS = 17;
+        const GRID_ROWS = 12;
+        const GRID_COLS = 12;
         let grid = Array(GRID_ROWS).fill().map(() => Array(GRID_COLS).fill(''));
+        let selectedWords = [];
         let foundWords = new Set();
         let isSelecting = false;
         let startCellCoords = null;
@@ -272,51 +273,70 @@
         }
 
         function generateGrid() {
-            // Reset grid
-            for (let r = 0; r < GRID_ROWS; r++)
-                for (let c = 0; c < GRID_COLS; c++)
-                    grid[r][c] = '';
-
-            const sortedWords = [...WORDS_DATA].map(w => w.english.toUpperCase()).sort((a, b) => b.length - a.length);
             const directions = [
                 [0, 1], [1, 0], [1, 1], [-1, 1],
                 [0, -1], [-1, 0], [-1, -1], [1, -1]
             ];
 
-            sortedWords.forEach(word => {
-                let placed = false;
-                let attempts = 0;
-                while (!placed && attempts < 200) {
-                    const dir = directions[Math.floor(Math.random() * directions.length)];
-                    const r = Math.floor(Math.random() * GRID_ROWS);
-                    const c = Math.floor(Math.random() * GRID_COLS);
+            // Pick 10 random words that fit within the grid dimensions
+            const maxWordLen = Math.min(GRID_ROWS, GRID_COLS);
+            const eligible = WORDS_DATA.filter(w => w.english.length <= maxWordLen);
 
-                    if (canPlace(word, r, c, dir)) {
-                        for (let i = 0; i < word.length; i++) {
-                            grid[r + i * dir[0]][c + i * dir[1]] = word[i];
-                        }
-                        placed = true;
-                    }
-                    attempts++;
+            // Retry the entire layout until all words are placed (or max retries reached)
+            for (let attempt = 0; attempt < 20; attempt++) {
+                // Reset grid
+                for (let r = 0; r < GRID_ROWS; r++)
+                    for (let c = 0; c < GRID_COLS; c++)
+                        grid[r][c] = '';
+
+                const shuffled = [...eligible];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
                 }
+                selectedWords = shuffled.slice(0, Math.min(10, shuffled.length));
 
-                // Systematic fallback: try every position and direction if random failed
-                if (!placed) {
-                    for (let r = 0; r < GRID_ROWS && !placed; r++) {
-                        for (let c = 0; c < GRID_COLS && !placed; c++) {
-                            for (let d = 0; d < directions.length && !placed; d++) {
-                                const dir = directions[d];
-                                if (canPlace(word, r, c, dir)) {
-                                    for (let i = 0; i < word.length; i++) {
-                                        grid[r + i * dir[0]][c + i * dir[1]] = word[i];
+                const sortedWords = selectedWords.map(w => w.english.toUpperCase()).sort((a, b) => b.length - a.length);
+                let allPlaced = true;
+
+                for (const word of sortedWords) {
+                    let placed = false;
+                    let tries = 0;
+                    while (!placed && tries < 200) {
+                        const dir = directions[Math.floor(Math.random() * directions.length)];
+                        const r = Math.floor(Math.random() * GRID_ROWS);
+                        const c = Math.floor(Math.random() * GRID_COLS);
+                        if (canPlace(word, r, c, dir)) {
+                            for (let i = 0; i < word.length; i++) {
+                                grid[r + i * dir[0]][c + i * dir[1]] = word[i];
+                            }
+                            placed = true;
+                        }
+                        tries++;
+                    }
+
+                    // Systematic fallback: try every position and direction if random failed
+                    if (!placed) {
+                        for (let r = 0; r < GRID_ROWS && !placed; r++) {
+                            for (let c = 0; c < GRID_COLS && !placed; c++) {
+                                for (let d = 0; d < directions.length && !placed; d++) {
+                                    const dir = directions[d];
+                                    if (canPlace(word, r, c, dir)) {
+                                        for (let i = 0; i < word.length; i++) {
+                                            grid[r + i * dir[0]][c + i * dir[1]] = word[i];
+                                        }
+                                        placed = true;
                                     }
-                                    placed = true;
                                 }
                             }
                         }
                     }
+
+                    if (!placed) { allPlaced = false; break; }
                 }
-            });
+
+                if (allPlaced) break;
+            }
 
             // Fill empty
             for (let r = 0; r < GRID_ROWS; r++) {
@@ -359,7 +379,7 @@
 
         function renderWordList() {
             wordListElement.innerHTML = '';
-            WORDS_DATA.forEach(word => {
+            selectedWords.forEach(word => {
                 const li = document.createElement('li');
                 li.className = 'word-item bg-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm border border-slate-100 text-slate-600';
                 li.id = `word-${word.english.toUpperCase()}`;
@@ -452,7 +472,7 @@
             const selectedWord = currentPath.map(p => p.char).join('');
             const reversedWord = selectedWord.split('').reverse().join('');
             
-            const match = WORDS_DATA.find(w => 
+            const match = selectedWords.find(w => 
                 (w.english.toUpperCase() === selectedWord || w.english.toUpperCase() === reversedWord) && 
                 !foundWords.has(w.english.toUpperCase())
             );
@@ -471,7 +491,7 @@
                 if (listItem) listItem.classList.add('found');
 
                 // Update counter
-                foundCounter.textContent = `${foundWords.size}/20`;
+                foundCounter.textContent = `${foundWords.size}/10`;
 
                 // Show Modal
                 showModal(match);
