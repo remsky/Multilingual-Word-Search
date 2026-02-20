@@ -105,9 +105,17 @@
 
         .word-item.found {
             text-decoration: line-through;
-            opacity: 0.5;
-            background: #F1F5F9 !important;
-            color: #94A3B8 !important;
+            opacity: 0.6;
+            background: #F0FDF4 !important;
+            color: #16A34A !important;
+            border-color: #BBF7D0 !important;
+            cursor: pointer;
+        }
+
+        .word-item.found:hover {
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
         }
 
         .glass-morphism {
@@ -173,7 +181,7 @@
                 <div id="word-list-section" class="glass-morphism rounded-3xl p-6 shadow-premium h-fit">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="font-bold text-lg text-slate-800">Words to Find</h2>
-                        <span id="found-counter" class="bg-accent-soft text-accent-main text-sm font-bold px-3 py-1 rounded-full">0/20</span>
+                        <span id="found-counter" class="bg-accent-soft text-accent-main text-sm font-bold px-3 py-1 rounded-full">0/10</span>
                     </div>
                     <ul id="word-list" class="flex flex-wrap lg:flex-col gap-2 max-h-[300px] lg:max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
                         <!-- JS will populate word list here -->
@@ -230,26 +238,69 @@
 
     <script>
         const WORDS_DATA = [
-            { english: "Aspiration", bengali: "আকাঙ্ক্ষা (Akangkha)", en_explanation: "A hope or ambition of achieving something.", bn_explanation: "কিছু অর্জনের আশা বা উচ্চাকাঙ্ক্ষা।" },
-            { english: "Diligence", bengali: "পরিশ্রম (Porishrom)", en_explanation: "Careful and persistent work or effort.", bn_explanation: "সাবধানী এবং অবিরাম কাজ বা প্রচেষ্টা।" },
-            { english: "Empathy", bengali: "সহমর্মিতা (Shohomormita)", en_explanation: "The ability to understand and share the feelings of another.", bn_explanation: "অন্যের অনুভূতি বোঝার এবং ভাগ করে নেওয়ার ক্ষমতা।" },
-            { english: "Innovation", bengali: "উদ্ভাবন (Udbhabon)", en_explanation: "A new method, idea, product, etc.", bn_explanation: "একটি নতুন পদ্ধতি, ধারণা, পণ্য ইত্যাদি।" },
-            { english: "Resilience", bengali: "স্থিতিস্থাপকতা (Sthitishthapokota)", en_explanation: "The capacity to recover quickly from difficulties.", bn_explanation: "অসুবিধা থেকে দ্রুত পুনরুদ্ধার করার ক্ষমতা।" },
-            { english: "Serenity", bengali: "প্রশান্তি (Proshanti)", en_explanation: "The state of being calm, peaceful, and untroubled.", bn_explanation: "শান্ত, শান্তিপূর্ণ এবং নিরবচ্ছিন্ন থাকার অবস্থা।" },
-            { english: "Strategy", bengali: "কৌশল (Koushol)", en_explanation: "A plan of action designed to achieve a long-term goal.", bn_explanation: "দীর্ঘমেয়াদী লক্ষ্য অর্জনের জন্য ডিজাইন করা কর্মপরিকল্পনা।" },
-            { english: "Collaboration", bengali: "সহযোগিতা (Shohojogita)", en_explanation: "The action of working with someone to produce something.", bn_explanation: "কিছু তৈরির জন্য কারো সাথে কাজ করার কাজ।" },
-            { english: "Destination", bengali: "গন্তব্য (Gontobbo)", en_explanation: "The place to which someone or something is going.", bn_explanation: "যে স্থানে কেউ বা কিছু যাচ্ছে।" },
-            { english: "Explore", bengali: "অন্বেষণ করা (Onneshon Kora)", en_explanation: "Travel through an unfamiliar area to learn about it.", bn_explanation: "অপরিচিত এলাকা সম্পর্কে জানতে তার মধ্য দিয়ে ভ্রমণ করা।" },
-            { english: "Gratitude", bengali: "কৃতজ্ঞতা (Kritoggyota)", en_explanation: "The quality of being thankful.", bn_explanation: "ধন্যবাদ দেওয়ার বা কৃতজ্ঞ থাকার গুণ।" },
-            { english: "Introspection", bengali: "আত্মদর্শন (Attodarshon)", en_explanation: "The examination of one's own conscious thoughts.", bn_explanation: "নিজের সচেতন চিন্তা ও অনুভূতির পরীক্ষা।" },
-            { english: "Negotiation", bengali: "আলোচনা (Alochena)", en_explanation: "Discussion aimed at reaching an agreement.", bn_explanation: "একটি চুক্তিতে পৌঁছানোর লক্ষ্যে আলোচনা।" },
-            { english: "Perspective", bengali: "দৃষ্টিভঙ্গি (Drishtibhongi)", en_explanation: "A particular attitude toward or way of regarding something.", bn_explanation: "কোন কিছুর প্রতি বিশেষ দৃষ্টিভঙ্গি বা দেখার উপায়।" },
-            { english: "Souvenir", bengali: "স্মারক (Smarok)", en_explanation: "A thing that is kept as a reminder of a person, place, or event.", bn_explanation: "ব্যক্তি, স্থান বা ঘটনার স্মারক হিসেবে রাখা বস্তু।" },
-            { english: "Endeavor", bengali: "প্রচেষ্টা (Procheshta)", en_explanation: "An attempt to achieve a goal.", bn_explanation: "একটি লক্ষ্য অর্জনের প্রচেষ্টা।" },
-            { english: "Efficiency", bengali: "দক্ষতা (Dokkhota)", en_explanation: "The ability to avoid wasting materials, energy, efforts, or time.", bn_explanation: "উপাদান, শক্তি, প্রচেষ্টা বা সময়ের অপচয় এড়ানোর ক্ষমতা।" },
-            { english: "Enlighten", bengali: "আলোকিত করা (Alokito Kora)", en_explanation: "Give someone greater knowledge and understanding.", bn_explanation: "কাউকে বৃহত্তর জ্ঞান এবং বোঝাপড়া প্রদান করা।" },
-            { english: "Flourish", bengali: "সমৃদ্ধ হওয়া (Somriddho Howa)", en_explanation: "Develop rapidly and successfully.", bn_explanation: "দ্রুত এবং সফলভাবে বিকাশ লাভ করা।" },
-            { english: "Integrity", bengali: "সততা (Sotota)", en_explanation: "The quality of being honest and having strong moral principles.", bn_explanation: "সততা এবং দৃঢ় নৈতিক নীতি থাকার গুণ।" }
+            // --- Easy / Familiar ---
+            { english: "Hope", bengali: "আশা (Asha)", en_explanation: "A feeling that something good can happen.", bn_explanation: "ভালো কিছু হতে পারে—এই আশা।" },
+            { english: "Calm", bengali: "শান্ত (Shanto)", en_explanation: "Peaceful and not upset.", bn_explanation: "শান্ত ও অস্থির নয়।" },
+            { english: "Peace", bengali: "শান্তি (Shanti)", en_explanation: "A state of inner quiet or no conflict.", bn_explanation: "মনের শান্তি বা ঝামেলাহীন অবস্থা।" },
+            { english: "Joy", bengali: "আনন্দ (Anondo)", en_explanation: "A strong feeling of happiness.", bn_explanation: "আনন্দের অনুভূতি।" },
+            { english: "Trust", bengali: "বিশ্বাস (Bishshash)", en_explanation: "Confidence in someone or something.", bn_explanation: "কাউকে বা কিছুকে বিশ্বাস করা।" },
+            { english: "Respect", bengali: "সম্মান (Shomman)", en_explanation: "Showing regard and value for someone.", bn_explanation: "কারও প্রতি সম্মান দেখানো।" },
+            { english: "Honest", bengali: "সৎ (Shot)", en_explanation: "Truthful and sincere.", bn_explanation: "সত্যবাদী ও আন্তরিক।" },
+            { english: "Kindness", bengali: "সদয়তা (Sadayota)", en_explanation: "Being kind and thoughtful.", bn_explanation: "সদয় ও বিবেচনাশীল হওয়ার গুণ।" },
+            { english: "Empathy", bengali: "সহমর্মিতা (Shohomormita)", en_explanation: "Understanding another person's feelings.", bn_explanation: "অন্যের অনুভূতি বোঝার ক্ষমতা।" },
+            { english: "Caring", bengali: "যত্নশীল (Jotnoshil)", en_explanation: "Showing care for others.", bn_explanation: "যত্ন নিয়ে আচরণ করে এমন।" },
+            { english: "Gentle", bengali: "নম্র (Nomro)", en_explanation: "Soft in manner; not harsh.", bn_explanation: "নম্র ও কঠোর নয়।" },
+            { english: "Rest", bengali: "বিশ্রাম (Bishram)", en_explanation: "Time to relax and recover.", bn_explanation: "শরীর-মনকে আরাম দেওয়ার সময়।" },
+            { english: "Sleep", bengali: "ঘুম (Ghum)", en_explanation: "Natural rest for body and mind.", bn_explanation: "শরীর-মন বিশ্রামের ঘুম।" },
+            { english: "Breath", bengali: "শ্বাস (Shash)", en_explanation: "Air taken in and out of the body.", bn_explanation: "শ্বাস নেওয়া ও ছাড়া।" },
+            { english: "Relax", bengali: "আরাম করা (Aram Kora)", en_explanation: "To become less tense.", bn_explanation: "টান কমিয়ে আরাম করা।" },
+            { english: "Smile", bengali: "হাসি (Hashi)", en_explanation: "A happy or warm facial expression.", bn_explanation: "মুখের মিষ্টি হাসি।" },
+            { english: "Friend", bengali: "বন্ধু (Bondhu)", en_explanation: "A person you trust and like.", bn_explanation: "বিশ্বাসের ও কাছের মানুষ।" },
+            { english: "Family", bengali: "পরিবার (Poribar)", en_explanation: "People closely related to you.", bn_explanation: "আপনার কাছের পরিবারের মানুষজন।" },
+            { english: "Share", bengali: "ভাগ করা (Bhag Kora)", en_explanation: "To give part of something or express with others.", bn_explanation: "অন্যের সঙ্গে ভাগ করে নেওয়া।" },
+            { english: "Listen", bengali: "শোনা (Shona)", en_explanation: "To pay attention to sound or someone's words.", bn_explanation: "মন দিয়ে শোনা।" },
+            // --- Medium / Common ---
+            { english: "Patience", bengali: "ধৈর্য (Dhoirjo)", en_explanation: "Staying steady during delay or difficulty.", bn_explanation: "দেরি বা কষ্টের সময় ধৈর্য রাখা।" },
+            { english: "Courage", bengali: "সাহস (Sahos)", en_explanation: "Acting despite fear.", bn_explanation: "ভয় থাকলেও এগিয়ে যাওয়া।" },
+            { english: "Effort", bengali: "চেষ্টা (Cheshta)", en_explanation: "Work done to achieve something.", bn_explanation: "কিছু করার জন্য চেষ্টা।" },
+            { english: "Focus", bengali: "মনোযোগ (Monojog)", en_explanation: "Careful attention.", bn_explanation: "মন দিয়ে খেয়াল করা।" },
+            { english: "Learn", bengali: "শেখা (Shekha)", en_explanation: "To gain knowledge or skill.", bn_explanation: "জ্ঞান বা দক্ষতা অর্জন করা।" },
+            { english: "Skill", bengali: "দক্ষতা (Dokkhota)", en_explanation: "Ability to do something well.", bn_explanation: "ভালোভাবে কিছু করার ক্ষমতা।" },
+            { english: "Plan", bengali: "পরিকল্পনা (Porikolpona)", en_explanation: "A way of organizing what to do.", bn_explanation: "আগে থেকে ভেবে কাজের ব্যবস্থা করা।" },
+            { english: "Habit", bengali: "অভ্যাস (Obhyash)", en_explanation: "Something done regularly.", bn_explanation: "যা নিয়মিত করা হয়।" },
+            { english: "Routine", bengali: "দৈনন্দিন অভ্যাস (Doinondin Obhyash)", en_explanation: "A usual set of daily actions.", bn_explanation: "প্রতিদিনের নিয়মিত কাজের ধারা।" },
+            { english: "Balance", bengali: "ভারসাম্য (Bhorshammo)", en_explanation: "A stable and healthy middle state.", bn_explanation: "সুষম ও স্থির অবস্থা।" },
+            { english: "Health", bengali: "স্বাস্থ্য (Shastho)", en_explanation: "Condition of body and mind.", bn_explanation: "শরীর ও মনের সুস্থতা।" },
+            { english: "Healing", bengali: "সুস্থতা (Shusthota)", en_explanation: "Getting better over time.", bn_explanation: "ধীরে ধীরে ভালো হয়ে ওঠা।" },
+            { english: "Support", bengali: "সহায়তা (Shohayota)", en_explanation: "Help or encouragement.", bn_explanation: "সাহায্য বা ভরসা।" },
+            { english: "Speak", bengali: "বলা (Bola)", en_explanation: "To say words or express thoughts.", bn_explanation: "কথা বলা বা ভাব প্রকাশ করা।" },
+            { english: "Reason", bengali: "যুক্তি (Jukti)", en_explanation: "A clear thinking basis for something.", bn_explanation: "কোনো কিছুর যুক্তিসঙ্গত কারণ।" },
+            { english: "Memory", bengali: "স্মৃতি (Smriti)", en_explanation: "The ability to remember.", bn_explanation: "মনে রাখার ক্ষমতা বা স্মরণ।" },
+            { english: "Choice", bengali: "পছন্দ (Pochondo)", en_explanation: "A decision between options.", bn_explanation: "বিকল্পের মধ্যে বেছে নেওয়া।" },
+            { english: "Decide", bengali: "সিদ্ধান্ত নেওয়া (Shiddhanto Newa)", en_explanation: "To make a choice.", bn_explanation: "সিদ্ধান্ত করা।" },
+            { english: "Change", bengali: "পরিবর্তন (Poriborton)", en_explanation: "To become different.", bn_explanation: "আগের চেয়ে ভিন্ন হওয়া।" },
+            { english: "Grow", bengali: "বেড়ে ওঠা (Bere Otha)", en_explanation: "To develop over time.", bn_explanation: "সময়ের সাথে উন্নত হওয়া বা বড় হওয়া।" },
+            // --- Slight Stretch ---
+            { english: "Growth", bengali: "বিকাশ (Bikash)", en_explanation: "Steady development.", bn_explanation: "ধীরে ধীরে উন্নতি বা বিকাশ।" },
+            { english: "Improve", bengali: "উন্নতি করা (Unnoto Kora)", en_explanation: "To make better.", bn_explanation: "আরও ভালো করা।" },
+            { english: "Create", bengali: "তৈরি করা (Toiri Kora)", en_explanation: "To make something new.", bn_explanation: "নতুন কিছু তৈরি করা।" },
+            { english: "Value", bengali: "মূল্য (Mullo)", en_explanation: "Importance or worth.", bn_explanation: "গুরুত্ব বা মূল্য।" },
+            { english: "Fairness", bengali: "ন্যায্যতা (Nyajjota)", en_explanation: "Being just and reasonable.", bn_explanation: "ন্যায়সঙ্গত ও যুক্তিযুক্ত হওয়া।" },
+            { english: "Duty", bengali: "দায়িত্ব (Dayitto)", en_explanation: "A responsibility.", bn_explanation: "দায়িত্ব বা কর্তব্য।" },
+            { english: "Accept", bengali: "মেনে নেওয়া (Mene Newa)", en_explanation: "To allow or understand something as it is.", bn_explanation: "যেমন আছে তেমন মেনে নেওয়া।" },
+            { english: "Adjust", bengali: "মানিয়ে নেওয়া (Maniye Newa)", en_explanation: "To adapt to a situation.", bn_explanation: "পরিস্থিতির সঙ্গে মানিয়ে নেওয়া।" },
+            { english: "Steady", bengali: "স্থির (Sthir)", en_explanation: "Stable and not easily shaken.", bn_explanation: "স্থির ও সহজে নড়ে না।" },
+            { english: "Strong", bengali: "শক্ত (Shokto)", en_explanation: "Having strength.", bn_explanation: "শক্তি আছে এমন।" },
+            { english: "Secure", bengali: "নিরাপদ (Nirapod)", en_explanation: "Safe and protected.", bn_explanation: "নিরাপদ ও সুরক্ষিত।" },
+            { english: "Simple", bengali: "সহজ (Shohoj)", en_explanation: "Not complicated.", bn_explanation: "জটিল নয়; সহজ।" },
+            { english: "Useful", bengali: "উপকারী (Upokari)", en_explanation: "Helpful or practical.", bn_explanation: "কাজে লাগে এমন; উপকারী।" },
+            { english: "Active", bengali: "সক্রিয় (Shokriyo)", en_explanation: "Doing things; engaged.", bn_explanation: "কাজে যুক্ত ও সক্রিয়।" },
+            { english: "Curious", bengali: "কৌতূহলী (Koutuholi)", en_explanation: "Interested in learning or knowing.", bn_explanation: "জানতে আগ্রহী।" },
+            { english: "Bright", bengali: "উজ্জ্বল (Ujjol)", en_explanation: "Full of light; also mentally sharp.", bn_explanation: "উজ্জ্বল; তীক্ষ্ণ বুদ্ধিসম্পন্ন।" },
+            { english: "Clever", bengali: "চতুর (Chotur)", en_explanation: "Quick to understand.", bn_explanation: "দ্রুত বুঝতে পারে এমন।" },
+            { english: "Present", bengali: "উপস্থিত (Uposthit)", en_explanation: "Being here now; in the moment.", bn_explanation: "এখন এখানে থাকা; বর্তমান থাকা।" },
+            { english: "Wisdom", bengali: "প্রজ্ঞা (Proggya)", en_explanation: "Good judgment from experience.", bn_explanation: "অভিজ্ঞতা থেকে আসা ভালো বিচারবোধ।" },
+            { english: "Insight", bengali: "অন্তর্দৃষ্টি (Ontordrishti)", en_explanation: "A clear understanding of something.", bn_explanation: "কোনো কিছু গভীরভাবে বুঝতে পারা।" },
         ];
 
         const GRID_ROWS = 12;
@@ -384,6 +435,11 @@
                 li.className = 'word-item bg-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm border border-slate-100 text-slate-600';
                 li.id = `word-${word.english.toUpperCase()}`;
                 li.textContent = word.english;
+                li.addEventListener('click', () => {
+                    if (foundWords.has(word.english.toUpperCase())) {
+                        showModal(word);
+                    }
+                });
                 wordListElement.appendChild(li);
             });
         }
@@ -491,7 +547,7 @@
                 if (listItem) listItem.classList.add('found');
 
                 // Update counter
-                foundCounter.textContent = `${foundWords.size}/10`;
+                foundCounter.textContent = `${foundWords.size}/${selectedWords.length}`;
 
                 // Show Modal
                 showModal(match);
