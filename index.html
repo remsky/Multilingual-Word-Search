@@ -105,9 +105,17 @@
 
         .word-item.found {
             text-decoration: line-through;
-            opacity: 0.5;
-            background: #F1F5F9 !important;
-            color: #94A3B8 !important;
+            opacity: 0.6;
+            background: #F0FDF4 !important;
+            color: #16A34A !important;
+            border-color: #BBF7D0 !important;
+            cursor: pointer;
+        }
+
+        .word-item.found:hover {
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
         }
 
         .glass-morphism {
@@ -173,7 +181,7 @@
                 <div id="word-list-section" class="glass-morphism rounded-3xl p-6 shadow-premium h-fit">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="font-bold text-lg text-slate-800">Words to Find</h2>
-                        <span id="found-counter" class="bg-accent-soft text-accent-main text-sm font-bold px-3 py-1 rounded-full">0/20</span>
+                        <span id="found-counter" class="bg-accent-soft text-accent-main text-sm font-bold px-3 py-1 rounded-full">0/10</span>
                     </div>
                     <ul id="word-list" class="flex flex-wrap lg:flex-col gap-2 max-h-[300px] lg:max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
                         <!-- JS will populate word list here -->
@@ -249,7 +257,21 @@
             { english: "Efficiency", bengali: "দক্ষতা (Dokkhota)", en_explanation: "The ability to avoid wasting materials, energy, efforts, or time.", bn_explanation: "উপাদান, শক্তি, প্রচেষ্টা বা সময়ের অপচয় এড়ানোর ক্ষমতা।" },
             { english: "Enlighten", bengali: "আলোকিত করা (Alokito Kora)", en_explanation: "Give someone greater knowledge and understanding.", bn_explanation: "কাউকে বৃহত্তর জ্ঞান এবং বোঝাপড়া প্রদান করা।" },
             { english: "Flourish", bengali: "সমৃদ্ধ হওয়া (Somriddho Howa)", en_explanation: "Develop rapidly and successfully.", bn_explanation: "দ্রুত এবং সফলভাবে বিকাশ লাভ করা।" },
-            { english: "Integrity", bengali: "সততা (Sotota)", en_explanation: "The quality of being honest and having strong moral principles.", bn_explanation: "সততা এবং দৃঢ় নৈতিক নীতি থাকার গুণ।" }
+            { english: "Integrity", bengali: "সততা (Sotota)", en_explanation: "The quality of being honest and having strong moral principles.", bn_explanation: "সততা এবং দৃঢ় নৈতিক নীতি থাকার গুণ।" },
+            { english: "Harmony", bengali: "সামঞ্জস্য (Shamonjoshyo)", en_explanation: "A pleasing arrangement of parts; agreement in feeling or opinion.", bn_explanation: "অংশগুলির একটি সুন্দর বিন্যাস; অনুভূতি বা মতের একমত।" },
+            { english: "Curiosity", bengali: "কৌতূহল (Koutuhol)", en_explanation: "A strong desire to know or learn something.", bn_explanation: "কিছু জানা বা শেখার তীব্র ইচ্ছা।" },
+            { english: "Compassion", bengali: "করুণা (Koruna)", en_explanation: "Sympathetic concern for the sufferings of others.", bn_explanation: "অন্যের দুঃখ-কষ্টের প্রতি সহানুভূতিশীল উদ্বেগ।" },
+            { english: "Wisdom", bengali: "প্রজ্ঞা (Progya)", en_explanation: "The quality of having experience, knowledge, and good judgment.", bn_explanation: "অভিজ্ঞতা, জ্ঞান এবং সঠিক বিচারবুদ্ধি থাকার গুণ।" },
+            { english: "Courage", bengali: "সাহস (Shahosh)", en_explanation: "The ability to do something that frightens one; bravery.", bn_explanation: "ভয়ের মুখে কিছু করার ক্ষমতা; সাহসিকতা।" },
+            { english: "Patience", bengali: "ধৈর্য (Dhoirjo)", en_explanation: "The capacity to accept delay or trouble without getting angry.", bn_explanation: "রাগ না করে বিলম্ব বা সমস্যা মেনে নেওয়ার ক্ষমতা।" },
+            { english: "Benevolence", bengali: "দয়া (Doya)", en_explanation: "The quality of being well-meaning; kindness.", bn_explanation: "সদিচ্ছা থাকার গুণ; দয়ালুতা।" },
+            { english: "Knowledge", bengali: "জ্ঞান (Gyan)", en_explanation: "Facts, information, and skills acquired through experience or education.", bn_explanation: "অভিজ্ঞতা বা শিক্ষার মাধ্যমে অর্জিত তথ্য এবং দক্ষতা।" },
+            { english: "Ambition", bengali: "উচ্চাকাঙ্ক্ষা (Uchchakangkha)", en_explanation: "A strong desire to achieve something, typically requiring determination.", bn_explanation: "কিছু অর্জনের তীব্র আকাঙ্ক্ষা, সাধারণত সংকল্পের প্রয়োজন।" },
+            { english: "Kindness", bengali: "সদয়তা (Shodoyota)", en_explanation: "The quality of being friendly, generous, and considerate.", bn_explanation: "বন্ধুত্বপূর্ণ, উদার এবং বিবেচনাশীল হওয়ার গুণ।" },
+            { english: "Discovery", bengali: "আবিষ্কার (Abishkar)", en_explanation: "The action of finding something for the first time.", bn_explanation: "প্রথমবারের মতো কিছু খুঁজে পাওয়ার কাজ।" },
+            { english: "Tranquil", bengali: "নির্মল (Nirmol)", en_explanation: "Free from disturbance; calm and peaceful.", bn_explanation: "বিরক্তি থেকে মুক্ত; শান্ত এবং শান্তিপূর্ণ।" },
+            { english: "Devotion", bengali: "ভক্তি (Bhokti)", en_explanation: "Love, loyalty, or enthusiasm for a person, activity, or cause.", bn_explanation: "কোনো ব্যক্তি, কাজ বা কারণের প্রতি ভালোবাসা ও আনুগত্য।" },
+            { english: "Persevere", bengali: "অধ্যবসায় (Oddhoboshay)", en_explanation: "Continue in a course of action despite difficulty or delay.", bn_explanation: "কঠিনতা বা বিলম্ব সত্ত্বেও কাজ চালিয়ে যাওয়া।" }
         ];
 
         const GRID_ROWS = 12;
@@ -384,6 +406,11 @@
                 li.className = 'word-item bg-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm border border-slate-100 text-slate-600';
                 li.id = `word-${word.english.toUpperCase()}`;
                 li.textContent = word.english;
+                li.addEventListener('click', () => {
+                    if (foundWords.has(word.english.toUpperCase())) {
+                        showModal(word);
+                    }
+                });
                 wordListElement.appendChild(li);
             });
         }
@@ -491,7 +518,7 @@
                 if (listItem) listItem.classList.add('found');
 
                 // Update counter
-                foundCounter.textContent = `${foundWords.size}/10`;
+                foundCounter.textContent = `${foundWords.size}/${selectedWords.length}`;
 
                 // Show Modal
                 showModal(match);
